@@ -10,7 +10,12 @@ export type OperationalCaseDetail = {
   sourceLinks: string[];
   availableActions: string[];
   timeline: Array<{ eventType: string; actorType: string; occurredAt: string }>;
+  recommendation?: RecommendationView;
 };
+
+export type RecommendationView = { status: 'PENDING' | 'READY' | 'FAILED' | 'STALE'; recommendedDisposition?: string;
+  summary?: string; proposedImprovement?: string; repositorySearchTerms?: string[]; citations?: string[];
+  uncertainty?: string; generatedAt?: string; model?: string; promptVersion?: string; stale: boolean };
 
 export type ApiError = { type: string; title: string; status: number; detail: string };
 

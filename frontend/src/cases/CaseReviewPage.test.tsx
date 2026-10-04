@@ -16,7 +16,7 @@ describe('CaseReviewPage', () => {
     expect(screen.getByText('24h: 3')).toBeInTheDocument();
     expect(screen.getByText('7d: 7')).toBeInTheDocument();
     expect(screen.getByText('30d: 12')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Recommendation' })).toBeInTheDocument();
-    expect(screen.getByText('No recommendation requested.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'AI recommendation' })).toBeInTheDocument();
+    expect(screen.getByText('AI recommendations are disabled or not requested.')).toBeInTheDocument();
   });
 });

@@ -7,6 +7,9 @@ import com.emos.operationalobservation.domain.OperationalCaseId;
 import com.emos.platform.audit.AuditQueryService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.ObjectProvider;
+import com.emos.recommendations.application.RecommendationService;
+import com.emos.recommendations.application.RecommendationRecord;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -21,10 +24,13 @@ public class OperationalCaseController {
     private final EvidenceQueryService evidence;
     private final AuditQueryService audit;
     private final Clock clock;
+    private final ObjectProvider<RecommendationService> recommendations;
 
     public OperationalCaseController(AlertQueryService alerts, EvidenceQueryService evidence,
-                                     AuditQueryService audit, Clock clock) {
+                                     AuditQueryService audit, Clock clock,
+                                     ObjectProvider<RecommendationService> recommendations) {
         this.alerts = alerts; this.evidence = evidence; this.audit = audit; this.clock = clock;
+        this.recommendations = recommendations;
     }
 
     @GetMapping("/{caseId}")
@@ -43,18 +49,35 @@ public class OperationalCaseController {
         var timeline = audit.findForSubject("ALERT", caseId).stream().map(entry ->
                 new TimelineEntry(entry.eventType(), entry.actorType().name(), entry.occurredAt())).toList();
         var actions = alert.status() == AlertStatus.RESOLVED ? List.of("RECORD_DISPOSITION") : List.<String>of();
+        var recommendation = Optional.ofNullable(recommendations.getIfAvailable()).flatMap(service -> service.findFor(id))
+                .map(OperationalCaseController::toRecommendation).orElse(null);
         return new CaseDetail(caseId, new Lifecycle(alert.sourceId(), alert.status().name(), alert.runbook(),
-                alert.triggeredAt(), alert.resolvedAt(), alert.updatedAt()), evidenceDto, List.copyOf(links), actions, timeline);
+                alert.triggeredAt(), alert.resolvedAt(), alert.updatedAt()), evidenceDto, List.copyOf(links), actions,
+                timeline, recommendation);
     }
 
     private static void add(Set<String> links, String value) { if (value != null && !value.isBlank()) links.add(value); }
 
+    private static RecommendationDto toRecommendation(RecommendationRecord record) {
+        var result = record.result();
+        return new RecommendationDto(record.status().name(), result == null ? null : result.recommendedDisposition(),
+                result == null ? null : result.summary(), result == null ? null : result.proposedImprovement(),
+                result == null ? List.of() : result.repositorySearchTerms(), result == null ? List.of() : result.citations(),
+                result == null ? null : result.uncertainty(), record.generatedAt(), result == null ? null : result.model(),
+                record.promptVersion(), record.status().name().equals("STALE"));
+    }
+
     public record CaseDetail(UUID caseId, Lifecycle lifecycle, EvidenceDto evidence, List<String> sourceLinks,
-                             List<String> availableActions, List<TimelineEntry> timeline) { }
+                             List<String> availableActions, List<TimelineEntry> timeline,
+                             RecommendationDto recommendation) { }
     public record Lifecycle(String sourceId, String status, String runbook, Instant triggeredAt,
                             Instant resolvedAt, Instant updatedAt) { }
     public record EvidenceDto(Long durationSeconds, String severity, Map<String,Integer> recurrence,
                               Freshness freshness) { }
     public record Freshness(Instant observedAt, boolean stale) { }
     public record TimelineEntry(String eventType, String actorType, Instant occurredAt) { }
+    public record RecommendationDto(String status, String recommendedDisposition, String summary,
+                                    String proposedImprovement, List<String> repositorySearchTerms,
+                                    List<String> citations, String uncertainty, Instant generatedAt,
+                                    String model, String promptVersion, boolean stale) { }
 }

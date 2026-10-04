@@ -22,6 +22,11 @@ management:
         include: health
 
 emos:
+  recommendations:
+    enabled: ${EMOS_RECOMMENDATIONS_ENABLED:false}
+    base-url: ${EMOS_OPENAI_BASE_URL:https://api.openai.com}
+    api-key: ${OPENAI_API_KEY:}
+    model: ${EMOS_OPENAI_MODEL:}
   calendar:
     zone: ${EMOS_CALENDAR_ZONE:Asia/Kolkata}
     holidays: ${EMOS_CALENDAR_HOLIDAYS:}
