@@ -38,7 +38,7 @@ public class OperationalCaseController {
         var id = new OperationalCaseId(caseId);
         var alert = alerts.findByCaseId(id).orElseThrow(() -> new CaseNotFoundException(caseId));
         var observed = evidence.findLatest(id);
-        var evidenceDto = observed.map(value -> new EvidenceDto(value.durationSeconds(), value.severity(),
+        var evidenceDto = observed.map(value -> new EvidenceDto(value.monitorId(), value.durationSeconds(), value.severity(),
                 Map.of("24h", value.recurrence().last24Hours(), "7d", value.recurrence().last7Days(),
                         "30d", value.recurrence().last30Days()),
                 new Freshness(value.observedAt(), value.observedAt().isBefore(clock.instant().minus(Duration.ofMinutes(15))))))
@@ -72,7 +72,7 @@ public class OperationalCaseController {
                              RecommendationDto recommendation) { }
     public record Lifecycle(String sourceId, String status, String runbook, Instant triggeredAt,
                             Instant resolvedAt, Instant updatedAt) { }
-    public record EvidenceDto(Long durationSeconds, String severity, Map<String,Integer> recurrence,
+    public record EvidenceDto(String monitorId, Long durationSeconds, String severity, Map<String,Integer> recurrence,
                               Freshness freshness) { }
     public record Freshness(Instant observedAt, boolean stale) { }
     public record TimelineEntry(String eventType, String actorType, Instant occurredAt) { }

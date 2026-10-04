@@ -22,6 +22,11 @@ management:
         include: health
 
 emos:
+  github:
+    enabled: ${EMOS_GITHUB_ENABLED:false}
+    base-url: ${EMOS_GITHUB_BASE_URL:https://api.github.com}
+    token: ${GITHUB_TOKEN:}
+    organization: ${EMOS_GITHUB_ORGANIZATION:}
   recommendations:
     enabled: ${EMOS_RECOMMENDATIONS_ENABLED:false}
     base-url: ${EMOS_OPENAI_BASE_URL:https://api.openai.com}

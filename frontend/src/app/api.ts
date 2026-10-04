@@ -6,7 +6,7 @@ export type TodayResponse = { attentionNow: AttentionNow[]; pending: Pending[]; 
 export type OperationalCaseDetail = {
   caseId: string;
   lifecycle: { sourceId: string; status: string; runbook?: string; triggeredAt?: string; resolvedAt?: string; updatedAt: string };
-  evidence?: { durationSeconds?: number; severity?: string; recurrence: Record<'24h' | '7d' | '30d', number>; freshness: { observedAt: string; stale: boolean } };
+  evidence?: { monitorId?: string; durationSeconds?: number; severity?: string; recurrence: Record<'24h' | '7d' | '30d', number>; freshness: { observedAt: string; stale: boolean } };
   sourceLinks: string[];
   availableActions: string[];
   timeline: Array<{ eventType: string; actorType: string; occurredAt: string }>;
@@ -24,3 +24,4 @@ export async function getJson<T>(path: string): Promise<T> {
   if (!response.ok) throw (await response.json()) as ApiError;
   return response.json() as Promise<T>;
 }
+export async function postJson<T>(path:string,body:unknown):Promise<T>{const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok)throw(await response.json()) as ApiError;return response.json() as Promise<T>;}
