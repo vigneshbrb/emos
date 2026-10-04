@@ -1,1 +1,11 @@
 .worktrees/
+.env
+target/
+backend/target/
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+.idea/
+.vscode/
+*.iml
+.DS_Store

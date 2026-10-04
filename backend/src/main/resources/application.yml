@@ -1,0 +1,22 @@
+server:
+  address: 127.0.0.1
+
+spring:
+  application:
+    name: emos
+  datasource:
+    url: ${EMOS_DB_URL:jdbc:postgresql://localhost:5432/emos}
+    username: ${EMOS_DB_USER:emos}
+    password: ${EMOS_DB_PASSWORD:emos}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
