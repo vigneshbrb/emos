@@ -22,6 +22,12 @@ management:
         include: health
 
 emos:
+  jira:
+    enabled: ${EMOS_JIRA_ENABLED:false}
+    base-url: ${EMOS_JIRA_BASE_URL:https://example.atlassian.net}
+    user: ${EMOS_JIRA_USER:}
+    token: ${EMOS_JIRA_TOKEN:}
+    project: ${EMOS_JIRA_PROJECT:}
   github:
     enabled: ${EMOS_GITHUB_ENABLED:false}
     base-url: ${EMOS_GITHUB_BASE_URL:https://api.github.com}

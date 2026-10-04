@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.URI;
 import java.util.UUID;
+import com.emos.improvementknowledge.application.ImprovementValidationException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -23,6 +24,14 @@ public class ApiExceptionHandler {
         var detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
         detail.setTitle("Invalid request");
         detail.setType(URI.create("https://emos.local/problems/invalid-request"));
+        return detail;
+    }
+
+    @ExceptionHandler(ImprovementValidationException.class)
+    ProblemDetail unprocessable(ImprovementValidationException exception) {
+        var detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        detail.setTitle("Improvement workflow validation failed");
+        detail.setType(URI.create("https://emos.local/problems/improvement-validation"));
         return detail;
     }
 }
