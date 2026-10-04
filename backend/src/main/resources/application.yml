@@ -22,6 +22,9 @@ management:
         include: health
 
 emos:
+  calendar:
+    zone: ${EMOS_CALENDAR_ZONE:Asia/Kolkata}
+    holidays: ${EMOS_CALENDAR_HOLIDAYS:}
   datadog:
     enabled: ${EMOS_DATADOG_ENABLED:false}
     base-url: ${EMOS_DATADOG_BASE_URL:https://api.datadoghq.com}

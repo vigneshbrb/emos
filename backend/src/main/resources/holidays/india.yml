@@ -1,0 +1,3 @@
+# EMOS does not fetch public holidays. Add explicitly approved dates here and mirror them
+# into EMOS_CALENDAR_HOLIDAYS as a comma-separated ISO date list for local deployment.
+dates: []

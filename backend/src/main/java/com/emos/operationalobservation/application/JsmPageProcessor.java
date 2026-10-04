@@ -74,6 +74,8 @@ class JsmPageProcessor {
             appendAudit(alert, eventType(change.type()));
             if (change.type() == Alert.AlertChange.Type.RESOLVED) {
                 events.publishEvent(new AlertResolved(alert.caseId(), alert.resolvedAt()));
+            } else if (change.type() == Alert.AlertChange.Type.REOPENED) {
+                events.publishEvent(new AlertReopened(alert.caseId(), alert.lastSourceUpdatedAt()));
             }
             processed++;
         }
