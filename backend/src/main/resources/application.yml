@@ -22,6 +22,11 @@ management:
         include: health
 
 emos:
+  datadog:
+    enabled: ${EMOS_DATADOG_ENABLED:false}
+    base-url: ${EMOS_DATADOG_BASE_URL:https://api.datadoghq.com}
+    api-key: ${EMOS_DATADOG_API_KEY:}
+    application-key: ${EMOS_DATADOG_APPLICATION_KEY:}
   jsm:
     enabled: ${EMOS_JSM_ENABLED:false}
     base-url: ${EMOS_JSM_BASE_URL:https://api.atlassian.com/jsm/ops}

@@ -42,7 +42,7 @@ class JsmPollServiceIntegrationTest {
 
     @BeforeEach
     void cleanDatabase() {
-        jdbc.execute("truncate table operational_source_event, operational_alert, platform_audit_entry");
+        jdbc.execute("truncate table operational_evidence_snapshot, operational_source_event, operational_alert, platform_audit_entry");
         jdbc.update("update operational_jsm_poll_state set cursor = null, updated_since = ? where singleton = true",
                 java.sql.Timestamp.from(Instant.EPOCH));
         jsm.clear();

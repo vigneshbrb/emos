@@ -32,6 +32,12 @@ class JdbcAlertRepository implements AlertRepository {
     }
 
     @Override
+    public Optional<Alert> findByCaseId(OperationalCaseId caseId) {
+        return jdbc.query("select * from operational_alert where case_id = ?", this::map, caseId.value())
+                .stream().findFirst();
+    }
+
+    @Override
     public void insert(Alert alert) {
         jdbc.update("""
                 insert into operational_alert
