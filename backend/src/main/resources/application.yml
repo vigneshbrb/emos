@@ -22,6 +22,10 @@ management:
         include: health
 
 emos:
+  base-url: ${EMOS_BASE_URL:http://localhost:5173}
+  email:
+    enabled: ${EMOS_EMAIL_ENABLED:false}
+    manager-recipient: ${EMOS_MANAGER_EMAIL:}
   jira:
     enabled: ${EMOS_JIRA_ENABLED:false}
     base-url: ${EMOS_JIRA_BASE_URL:https://example.atlassian.net}

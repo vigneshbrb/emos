@@ -1,0 +1,1 @@
+package com.emos.attentionfollowthrough.application;import com.emos.operationalobservation.domain.OperationalCaseId;import java.time.Instant;public interface FollowUpAttentionPort{void ensureReviewAttention(OperationalCaseId caseId,Instant now,String reason);void resolveReviewAttention(OperationalCaseId caseId,Instant now);}
