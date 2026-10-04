@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Repository
 @ConditionalOnProperty(name = "emos.persistence.enabled", havingValue = "true", matchIfMissing = true)
@@ -31,5 +32,19 @@ class JdbcAlertQueryService implements AlertQueryService {
                 rs.getString("severity"),
                 rs.getString("source_url"),
                 rs.getTimestamp("source_updated_at").toInstant()));
+    }
+
+    @Override
+    public Optional<CaseSummary> findByCaseId(OperationalCaseId caseId) {
+        return jdbc.query("select * from operational_alert where case_id=?", (rs, row) -> new CaseSummary(
+                new OperationalCaseId(rs.getObject("case_id", UUID.class)), rs.getString("source_id"),
+                AlertStatus.valueOf(rs.getString("status")), rs.getString("severity"), rs.getString("source_url"),
+                rs.getString("monitor_url"), rs.getString("runbook"),
+                instant(rs.getTimestamp("triggered_at")), instant(rs.getTimestamp("resolved_at")),
+                rs.getTimestamp("source_updated_at").toInstant()), caseId.value()).stream().findFirst();
+    }
+
+    private static java.time.Instant instant(java.sql.Timestamp value) {
+        return value == null ? null : value.toInstant();
     }
 }

@@ -13,7 +13,7 @@ public interface AttentionQueryService {
     List<PendingObligationSummary> findPending();
 
     record AttentionSummary(UUID id, ObligationId obligationId, OperationalCaseId caseId,
-                            String reason, Instant openedAt) { }
+                            String reason, Instant deadline, Instant openedAt) { }
     record PendingObligationSummary(ObligationId id, OperationalCaseId caseId, ObligationState state,
                                     Instant deadline) { }
 }
