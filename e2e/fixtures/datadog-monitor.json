@@ -1,0 +1,7 @@
+{
+  "monitorId": "datadog-monitor-42",
+  "durationSeconds": 900,
+  "severity": "P2",
+  "recurrence": { "24h": 3, "7d": 8, "30d": 21 },
+  "observedAt": "2026-10-04T10:20:00Z"
+}

@@ -23,6 +23,9 @@ management:
 
 emos:
   base-url: ${EMOS_BASE_URL:http://localhost:5173}
+  telemetry:
+    heartbeat: ${EMOS_TELEMETRY_HEARTBEAT:PT60S}
+    idle-cutoff: ${EMOS_TELEMETRY_IDLE_CUTOFF:PT120S}
   email:
     enabled: ${EMOS_EMAIL_ENABLED:false}
     manager-recipient: ${EMOS_MANAGER_EMAIL:}

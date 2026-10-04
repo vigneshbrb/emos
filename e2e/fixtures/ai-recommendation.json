@@ -1,0 +1,13 @@
+{
+  "status": "READY",
+  "recommendedDisposition": "CREATE_IMPROVEMENT",
+  "summary": "Repeated request latency merits preventive work.",
+  "proposedImprovement": "Profile the request path and reduce its database cost.",
+  "repositorySearchTerms": ["request", "latency"],
+  "citations": ["duration", "recurrence-24h"],
+  "uncertainty": "Repository ownership needs manager confirmation.",
+  "generatedAt": "2026-10-04T10:30:00Z",
+  "model": "codex",
+  "promptVersion": "v1",
+  "stale": false
+}

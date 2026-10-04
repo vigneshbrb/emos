@@ -1,0 +1,10 @@
+[
+  {
+    "repositoryId": "platform/request-service",
+    "authoritative": false,
+    "accessible": true,
+    "requiresConfirmation": true,
+    "reasons": ["Runbook and recommendation terms match"],
+    "provenance": "permitted GitHub catalog"
+  }
+]
