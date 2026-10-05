@@ -18,8 +18,6 @@ describe('App', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Today' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: 'System health' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'System health' })).toBeInTheDocument();
   });
 });

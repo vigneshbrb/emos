@@ -56,6 +56,37 @@ npx --prefix e2e playwright install chromium
 npm --prefix e2e test
 ```
 
+## Formatting and IDE setup
+
+The repository uses UTF-8 and cross-platform line-ending rules from `.editorconfig` and
+`.gitattributes`. IDEs with EditorConfig support apply the whitespace rules automatically. VS Code
+will recommend EditorConfig, Prettier, and Java extensions; IntelliJ IDEA and Eclipse can import the
+same EditorConfig rules.
+
+Run the canonical formatters before committing:
+
+```bash
+./mvnw spotless:apply
+npm ci
+npm run format
+```
+
+CI-compatible checks do not modify files:
+
+```bash
+./mvnw spotless:check
+npm run format:check
+```
+
+Java uses Google Java Format through Maven Spotless. TypeScript, TSX, HTML, JSON, YAML, and Markdown
+use the repository-pinned Prettier version. New PostgreSQL migration files should also be formatted
+with that version before first use. These CLI commands are authoritative regardless of IDE or
+operating system.
+
+Applied Flyway migrations under `backend/src/main/resources/db/migration` are intentionally excluded
+from automatic rewriting because formatting changes their checksums. Format each new migration before
+it is first applied; never rewrite a migration already recorded in a database.
+
 The Playwright replay uses deterministic files under `e2e/fixtures` and exercises the active-alert, deadline breach, recommendation, repository confirmation, approved Jira draft, uncertain-write reconciliation, follow-up, completion, and audit presentation path. It never calls production providers.
 
 ## Operations and data

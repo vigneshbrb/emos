@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/system")
 public class SystemController {
 
-    @GetMapping("/health")
-    public SystemHealthResponse health() {
-        return new SystemHealthResponse("UP");
-    }
+  @GetMapping("/health")
+  public SystemHealthResponse health() {
+    return new SystemHealthResponse("UP");
+  }
 
-    public record SystemHealthResponse(String status) {
-    }
+  public record SystemHealthResponse(String status) {}
 }

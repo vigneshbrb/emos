@@ -1,1 +1,11 @@
-package com.emos.notifications.application;import java.time.*;public interface DigestDeliveryStore{boolean wasSent(LocalDate date,String recipient);void sent(LocalDate date,String recipient,Instant at);void failed(LocalDate date,String recipient,Instant at,String message);}
+package com.emos.notifications.application;
+
+import java.time.*;
+
+public interface DigestDeliveryStore {
+  boolean wasSent(LocalDate date, String recipient);
+
+  void sent(LocalDate date, String recipient, Instant at);
+
+  void failed(LocalDate date, String recipient, Instant at, String message);
+}

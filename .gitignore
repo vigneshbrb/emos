@@ -3,12 +3,14 @@
 target/
 backend/target/
 frontend/node_modules/
+node_modules/
 frontend/dist/
 e2e/node_modules/
 e2e/test-results/
 e2e/playwright-report/
 *.tsbuildinfo
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 *.iml
 .DS_Store

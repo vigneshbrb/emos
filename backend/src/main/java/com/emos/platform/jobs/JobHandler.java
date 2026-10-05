@@ -1,7 +1,7 @@
 package com.emos.platform.jobs;
 
 public interface JobHandler {
-    String type();
+  String type();
 
-    void handle(Job job);
+  void handle(Job job);
 }

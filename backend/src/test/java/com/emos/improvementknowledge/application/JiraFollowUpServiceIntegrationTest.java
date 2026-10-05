@@ -1,14 +1,113 @@
 package com.emos.improvementknowledge.application;
-import org.junit.jupiter.api.*;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.*;import org.springframework.context.annotation.*;import org.springframework.jdbc.core.JdbcTemplate;import org.springframework.test.context.TestPropertySource;import java.time.*;import java.util.*;import static org.assertj.core.api.Assertions.*;
-@SpringBootTest @Import(JiraFollowUpServiceIntegrationTest.Config.class)
-@TestPropertySource(properties={"spring.datasource.url=jdbc:tc:postgresql:17:///emos-follow-up","spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver","emos.jira.completed-statuses=Done","emos.jira.rationale-statuses=Cancelled,Rejected,Won't Do"})
-class JiraFollowUpServiceIntegrationTest{
- @Autowired JiraFollowUpService service;@Autowired JdbcTemplate jdbc;@Autowired StubJira jira;UUID id;UUID caseId;
- @BeforeEach void seed(){jdbc.execute("truncate table attention_item, disposition_obligation, improvement_follow_up cascade");id=UUID.randomUUID();caseId=UUID.randomUUID();jdbc.update("insert into improvement_follow_up(id,case_id,jira_key,jira_url,review_date,state,created_at) values(?,?,?,?,?,'OPEN',?)",id,caseId,"OPS-42","https://jira/OPS-42",LocalDate.now().minusDays(1),java.sql.Timestamp.from(Instant.now().minusSeconds(86400)));}
- @Test void done_closes_follow_up_and_repeated_poll_is_idempotent(){jira.observation=new JiraIssueObservation("Done",true,Instant.now());assertThat(service.refresh(new FollowUpId(id)).state()).isEqualTo("CLOSED");service.refresh(new FollowUpId(id));assertThat(jdbc.queryForObject("select count(*) from attention_item",Integer.class)).isZero();}
- @Test void incomplete_at_review_creates_exactly_one_attention_item(){jira.observation=new JiraIssueObservation("In Progress",true,Instant.now());service.refresh(new FollowUpId(id));service.refresh(new FollowUpId(id));assertThat(jdbc.queryForObject("select count(*) from attention_item",Integer.class)).isEqualTo(1);}
- @Test void reopening_completed_issue_creates_new_review_obligation(){jdbc.update("update improvement_follow_up set state='CLOSED',jira_status='Done' where id=?",id);jira.observation=new JiraIssueObservation("In Progress",true,Instant.now());assertThat(service.refresh(new FollowUpId(id)).state()).isEqualTo("OPEN");assertThat(jdbc.queryForObject("select count(*) from disposition_obligation where expectation_key='improvement-review'",Integer.class)).isEqualTo(1);}
- @Test void non_completion_or_inaccessible_requires_final_rationale_and_remains_open(){for(var observation:List.of(new JiraIssueObservation("Won't Do",true,Instant.now()),new JiraIssueObservation("Deleted",false,Instant.now()))){jira.observation=observation;var result=service.refresh(new FollowUpId(id));assertThat(result.state()).isEqualTo("OPEN");assertThat(result.finalRationaleRequired()).isTrue();}}
- @TestConfiguration static class Config{@Bean @Primary StubJira followUpJira(){return new StubJira();}}
- static class StubJira implements JiraIssuePort{JiraIssueObservation observation;public JiraIssueObservation observe(JiraIssueRef ref){return observation;}public JiraIssueRef create(ApprovedJiraDraft d,String k){throw new UnsupportedOperationException();}public Optional<JiraIssueRef> findByCorrelationKey(String k){return Optional.empty();}}
+
+import static org.assertj.core.api.Assertions.*;
+
+import java.time.*;
+import java.util.*;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.*;
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
+
+@SpringBootTest
+@Import(JiraFollowUpServiceIntegrationTest.Config.class)
+@TestPropertySource(
+    properties = {
+      "spring.datasource.url=jdbc:tc:postgresql:17:///emos-follow-up",
+      "spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
+      "emos.jira.completed-statuses=Done",
+      "emos.jira.rationale-statuses=Cancelled,Rejected,Won't Do"
+    })
+class JiraFollowUpServiceIntegrationTest {
+  @Autowired JiraFollowUpService service;
+  @Autowired JdbcTemplate jdbc;
+  @Autowired StubJira jira;
+  UUID id;
+  UUID caseId;
+
+  @BeforeEach
+  void seed() {
+    jdbc.execute(
+        "truncate table attention_item, disposition_obligation, improvement_follow_up cascade");
+    id = UUID.randomUUID();
+    caseId = UUID.randomUUID();
+    jdbc.update(
+        "insert into improvement_follow_up(id,case_id,jira_key,jira_url,review_date,state,created_at) values(?,?,?,?,?,'OPEN',?)",
+        id,
+        caseId,
+        "OPS-42",
+        "https://jira/OPS-42",
+        LocalDate.now().minusDays(1),
+        java.sql.Timestamp.from(Instant.now().minusSeconds(86400)));
+  }
+
+  @Test
+  void done_closes_follow_up_and_repeated_poll_is_idempotent() {
+    jira.observation = new JiraIssueObservation("Done", true, Instant.now());
+    assertThat(service.refresh(new FollowUpId(id)).state()).isEqualTo("CLOSED");
+    service.refresh(new FollowUpId(id));
+    assertThat(jdbc.queryForObject("select count(*) from attention_item", Integer.class)).isZero();
+  }
+
+  @Test
+  void incomplete_at_review_creates_exactly_one_attention_item() {
+    jira.observation = new JiraIssueObservation("In Progress", true, Instant.now());
+    service.refresh(new FollowUpId(id));
+    service.refresh(new FollowUpId(id));
+    assertThat(jdbc.queryForObject("select count(*) from attention_item", Integer.class))
+        .isEqualTo(1);
+  }
+
+  @Test
+  void reopening_completed_issue_creates_new_review_obligation() {
+    jdbc.update(
+        "update improvement_follow_up set state='CLOSED',jira_status='Done' where id=?", id);
+    jira.observation = new JiraIssueObservation("In Progress", true, Instant.now());
+    assertThat(service.refresh(new FollowUpId(id)).state()).isEqualTo("OPEN");
+    assertThat(
+            jdbc.queryForObject(
+                "select count(*) from disposition_obligation where expectation_key='improvement-review'",
+                Integer.class))
+        .isEqualTo(1);
+  }
+
+  @Test
+  void non_completion_or_inaccessible_requires_final_rationale_and_remains_open() {
+    for (var observation :
+        List.of(
+            new JiraIssueObservation("Won't Do", true, Instant.now()),
+            new JiraIssueObservation("Deleted", false, Instant.now()))) {
+      jira.observation = observation;
+      var result = service.refresh(new FollowUpId(id));
+      assertThat(result.state()).isEqualTo("OPEN");
+      assertThat(result.finalRationaleRequired()).isTrue();
+    }
+  }
+
+  @TestConfiguration
+  static class Config {
+    @Bean
+    @Primary
+    StubJira followUpJira() {
+      return new StubJira();
+    }
+  }
+
+  static class StubJira implements JiraIssuePort {
+    JiraIssueObservation observation;
+
+    public JiraIssueObservation observe(JiraIssueRef ref) {
+      return observation;
+    }
+
+    public JiraIssueRef create(ApprovedJiraDraft d, String k) {
+      throw new UnsupportedOperationException();
+    }
+
+    public Optional<JiraIssueRef> findByCorrelationKey(String k) {
+      return Optional.empty();
+    }
+  }
 }

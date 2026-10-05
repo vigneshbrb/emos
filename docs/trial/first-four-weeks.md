@@ -7,8 +7,8 @@ EMOS becomes the manager's default daily view and reduces time spent remembering
 ## Daily capture
 
 | Date | EMOS active minutes | External-system minutes (self-check) | Resolved cases | Cases dispositioned | Within 24 working hours | Notes / missing capability |
-|---|---:|---:|---:|---:|---:|---|
-| | | | | | | |
+| ---- | ------------------: | -----------------------------------: | -------------: | ------------------: | ----------------------: | -------------------------- |
+|      |                     |                                      |                |                     |                         |                            |
 
 EMOS calculates only its own visible, focused interaction time. Record time spent directly in JSM, Datadog, GitHub, and Jira once per day; EMOS does not monitor those applications.
 

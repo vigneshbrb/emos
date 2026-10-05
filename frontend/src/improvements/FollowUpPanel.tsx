@@ -1,4 +1,51 @@
-import {useEffect,useState} from 'react';import {getJson} from '../app/api';
-export type FollowUpView={jiraKey:string;jiraStatus:string;observedAt:string;stale:boolean;reviewDate:string;state:'OPEN'|'CLOSED';overdue:boolean;finalRationaleRequired:boolean};
-export function FollowUpPanel({followUp}:{followUp?:FollowUpView}){if(!followUp)return <section><h2>Improvement follow-up</h2><p>No improvement follow-up exists.</p></section>;return <section><h2>Improvement follow-up</h2><p>Jira: <strong>{followUp.jiraKey}</strong></p><p>Status: <span>{followUp.jiraStatus}</span></p><p>Review date: {followUp.reviewDate}</p><p>Completion: {followUp.state}</p>{followUp.stale&&<p>Source data is stale</p>}{followUp.overdue&&<p>Review overdue</p>}{followUp.finalRationaleRequired&&<><p>Final rationale required</p><p>Final-rationale submission is not available in this slice.</p></>}</section>}
-export function FollowUpWorkflow({caseId}:{caseId:string}){const [value,setValue]=useState<FollowUpView>();useEffect(()=>{getJson<FollowUpView>(`/api/cases/${caseId}/follow-up`).then(setValue).catch(()=>setValue(undefined));},[caseId]);return <FollowUpPanel followUp={value}/>;}
+import { useEffect, useState } from 'react';
+import { getJson } from '../app/api';
+export type FollowUpView = {
+  jiraKey: string;
+  jiraStatus: string;
+  observedAt: string;
+  stale: boolean;
+  reviewDate: string;
+  state: 'OPEN' | 'CLOSED';
+  overdue: boolean;
+  finalRationaleRequired: boolean;
+};
+export function FollowUpPanel({ followUp }: { followUp?: FollowUpView }) {
+  if (!followUp)
+    return (
+      <section>
+        <h2>Improvement follow-up</h2>
+        <p>No improvement follow-up exists.</p>
+      </section>
+    );
+  return (
+    <section>
+      <h2>Improvement follow-up</h2>
+      <p>
+        Jira: <strong>{followUp.jiraKey}</strong>
+      </p>
+      <p>
+        Status: <span>{followUp.jiraStatus}</span>
+      </p>
+      <p>Review date: {followUp.reviewDate}</p>
+      <p>Completion: {followUp.state}</p>
+      {followUp.stale && <p>Source data is stale</p>}
+      {followUp.overdue && <p>Review overdue</p>}
+      {followUp.finalRationaleRequired && (
+        <>
+          <p>Final rationale required</p>
+          <p>Final-rationale submission is not available in this slice.</p>
+        </>
+      )}
+    </section>
+  );
+}
+export function FollowUpWorkflow({ caseId }: { caseId: string }) {
+  const [value, setValue] = useState<FollowUpView>();
+  useEffect(() => {
+    getJson<FollowUpView>(`/api/cases/${caseId}/follow-up`)
+      .then(setValue)
+      .catch(() => setValue(undefined));
+  }, [caseId]);
+  return <FollowUpPanel followUp={value} />;
+}

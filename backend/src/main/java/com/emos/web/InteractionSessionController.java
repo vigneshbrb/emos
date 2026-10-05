@@ -1,1 +1,42 @@
-package com.emos.web;import com.emos.platform.telemetry.InteractionSessionService;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.web.bind.annotation.*;import java.time.*;import java.util.*;@RestController @RequestMapping("/api/interaction-sessions") @ConditionalOnProperty(name="emos.persistence.enabled",havingValue="true",matchIfMissing=true) public class InteractionSessionController{private final InteractionSessionService service;private final Clock clock;public InteractionSessionController(InteractionSessionService s,Clock c){service=s;clock=c;}@PostMapping("/start")Map<String,UUID> start(@RequestBody Start body){return Map.of("id",service.start(body.caseId(),clock.instant()));}@PostMapping("/{id}/heartbeat")void heartbeat(@PathVariable UUID id,@RequestBody Heartbeat body){service.heartbeat(id,clock.instant(),body.visible()&&body.active());}@PostMapping("/{id}/stop")void stop(@PathVariable UUID id){service.stop(id,clock.instant());}record Start(UUID caseId){}record Heartbeat(boolean visible,boolean active){}}
+package com.emos.web;
+
+import com.emos.platform.telemetry.InteractionSessionService;
+import java.time.*;
+import java.util.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/interaction-sessions")
+@ConditionalOnProperty(
+    name = "emos.persistence.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
+public class InteractionSessionController {
+  private final InteractionSessionService service;
+  private final Clock clock;
+
+  public InteractionSessionController(InteractionSessionService s, Clock c) {
+    service = s;
+    clock = c;
+  }
+
+  @PostMapping("/start")
+  Map<String, UUID> start(@RequestBody Start body) {
+    return Map.of("id", service.start(body.caseId(), clock.instant()));
+  }
+
+  @PostMapping("/{id}/heartbeat")
+  void heartbeat(@PathVariable UUID id, @RequestBody Heartbeat body) {
+    service.heartbeat(id, clock.instant(), body.visible() && body.active());
+  }
+
+  @PostMapping("/{id}/stop")
+  void stop(@PathVariable UUID id) {
+    service.stop(id, clock.instant());
+  }
+
+  record Start(UUID caseId) {}
+
+  record Heartbeat(boolean visible, boolean active) {}
+}

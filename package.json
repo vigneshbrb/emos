@@ -1,0 +1,12 @@
+{
+  "name": "emos-workspace",
+  "private": true,
+  "scripts": {
+    "format": "prettier . --write --ignore-unknown",
+    "format:check": "prettier . --check --ignore-unknown"
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "prettier-plugin-sql": "0.20.0"
+  }
+}

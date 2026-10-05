@@ -7,13 +7,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers(disabledWithoutDocker = true)
-@TestPropertySource(properties = {
-        "spring.datasource.url=jdbc:tc:postgresql:17:///emos",
-        "spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver"
-})
+@TestPropertySource(
+    properties = {
+      "spring.datasource.url=jdbc:tc:postgresql:17:///emos",
+      "spring.datasource.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver"
+    })
 class PostgresIntegrationTest {
 
-    @Test
-    void contextLoadsAgainstPostgres17() {
-    }
+  @Test
+  void contextLoadsAgainstPostgres17() {}
 }

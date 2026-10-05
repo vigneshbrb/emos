@@ -3,13 +3,13 @@ package com.emos;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(properties = {
-        "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration,org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration",
-        "emos.persistence.enabled=false"
-})
+@SpringBootTest(
+    properties = {
+      "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration,org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration",
+      "emos.persistence.enabled=false"
+    })
 class EmosApplicationTest {
 
-    @Test
-    void contextLoads() {
-    }
+  @Test
+  void contextLoads() {}
 }

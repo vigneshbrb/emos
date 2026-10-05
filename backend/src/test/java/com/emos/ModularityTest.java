@@ -5,8 +5,8 @@ import org.springframework.modulith.core.ApplicationModules;
 
 class ModularityTest {
 
-    @Test
-    void modules_are_acyclic() {
-        ApplicationModules.of(EmosApplication.class).verify();
-    }
+  @Test
+  void modules_are_acyclic() {
+    ApplicationModules.of(EmosApplication.class).verify();
+  }
 }

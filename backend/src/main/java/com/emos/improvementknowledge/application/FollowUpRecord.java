@@ -1,1 +1,15 @@
-package com.emos.improvementknowledge.application;import com.emos.operationalobservation.domain.OperationalCaseId;import java.time.*;public record FollowUpRecord(FollowUpId id,OperationalCaseId caseId,JiraIssueRef issue,LocalDate reviewDate,String state,String jiraStatus,Instant observedAt,boolean accessible,boolean finalRationaleRequired){}
+package com.emos.improvementknowledge.application;
+
+import com.emos.operationalobservation.domain.OperationalCaseId;
+import java.time.*;
+
+public record FollowUpRecord(
+    FollowUpId id,
+    OperationalCaseId caseId,
+    JiraIssueRef issue,
+    LocalDate reviewDate,
+    String state,
+    String jiraStatus,
+    Instant observedAt,
+    boolean accessible,
+    boolean finalRationaleRequired) {}

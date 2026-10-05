@@ -1,13 +1,89 @@
 package com.emos.improvementknowledge.application;
-import com.emos.attentionfollowthrough.application.DispositionCompletionPort;import com.emos.platform.audit.*;import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;import org.springframework.beans.factory.ObjectProvider;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import tools.jackson.databind.ObjectMapper;import java.time.*;import java.util.*;
-@Service @ConditionalOnProperty(name="emos.persistence.enabled",havingValue="true",matchIfMissing=true) public class CreateImprovementService{
- private final ImprovementRepository repository;private final ObjectProvider<JiraIssuePort> jiraProvider;private final DispositionCompletionPort disposition;private final Clock clock;private final AuditTrail audit;private final ObjectMapper json;
- public CreateImprovementService(ImprovementRepository repository,ObjectProvider<JiraIssuePort> jiraProvider,DispositionCompletionPort disposition,Clock clock,AuditTrail audit,ObjectMapper json){this.repository=repository;this.jiraProvider=jiraProvider;this.disposition=disposition;this.clock=clock;this.audit=audit;this.json=json;}
- @Transactional public CreateImprovementResult execute(CreateImprovementCommand command){
-  var existing=repository.findAttempt(command.attemptId());if(existing.isPresent())return new CreateImprovementResult(existing.get(),true);
-  var draft=repository.findDraft(command.draftId(),command.caseId()).orElseThrow(()->new ImprovementValidationException("Draft not found"));
-  if(!draft.approved())throw new ImprovementValidationException("Draft approval is required");if(command.reviewDate()==null||command.reviewDate().isBefore(LocalDate.now(clock)))throw new ImprovementValidationException("Review date must not be in the past");if(!repository.isConfirmed(command.caseId(),draft.repositoryId()))throw new ImprovementValidationException("Repository must be confirmed");if(!disposition.hasActive(command.caseId()))throw new ImprovementValidationException("Disposition is already satisfied");
-  var jira=jiraProvider.getIfAvailable();if(jira==null)throw new ImprovementValidationException("Jira integration is disabled");var correlation=command.caseId().value()+":"+command.attemptId();var found=jira.findByCorrelationKey(correlation);var issue=found.orElseGet(()->jira.create(new ApprovedJiraDraft(draft.title(),draft.problemStatement(),draft.proposedDirection(),draft.acceptanceIntent(),draft.repositoryId(),command.reviewDate()),correlation));var now=clock.instant();repository.record(command.attemptId(),command.caseId(),correlation,issue,command.reviewDate(),now);if(!disposition.complete(command.caseId(),now))throw new ImprovementValidationException("Disposition is already satisfied");
-  audit.append(new AuditEntry(UUID.randomUUID(),"OPERATIONAL_CASE",command.caseId().value(),"disposition.create-improvement",AuditEntry.ActorType.MANAGER,now,json.createObjectNode().put("jiraKey",issue.key()),List.of()));return new CreateImprovementResult(issue,found.isPresent());
- }
+
+import com.emos.attentionfollowthrough.application.DispositionCompletionPort;
+import com.emos.platform.audit.*;
+import java.time.*;
+import java.util.*;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
+
+@Service
+@ConditionalOnProperty(
+    name = "emos.persistence.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
+public class CreateImprovementService {
+  private final ImprovementRepository repository;
+  private final ObjectProvider<JiraIssuePort> jiraProvider;
+  private final DispositionCompletionPort disposition;
+  private final Clock clock;
+  private final AuditTrail audit;
+  private final ObjectMapper json;
+
+  public CreateImprovementService(
+      ImprovementRepository repository,
+      ObjectProvider<JiraIssuePort> jiraProvider,
+      DispositionCompletionPort disposition,
+      Clock clock,
+      AuditTrail audit,
+      ObjectMapper json) {
+    this.repository = repository;
+    this.jiraProvider = jiraProvider;
+    this.disposition = disposition;
+    this.clock = clock;
+    this.audit = audit;
+    this.json = json;
+  }
+
+  @Transactional
+  public CreateImprovementResult execute(CreateImprovementCommand command) {
+    var existing = repository.findAttempt(command.attemptId());
+    if (existing.isPresent()) return new CreateImprovementResult(existing.get(), true);
+    var draft =
+        repository
+            .findDraft(command.draftId(), command.caseId())
+            .orElseThrow(() -> new ImprovementValidationException("Draft not found"));
+    if (!draft.approved()) throw new ImprovementValidationException("Draft approval is required");
+    if (command.reviewDate() == null || command.reviewDate().isBefore(LocalDate.now(clock)))
+      throw new ImprovementValidationException("Review date must not be in the past");
+    if (!repository.isConfirmed(command.caseId(), draft.repositoryId()))
+      throw new ImprovementValidationException("Repository must be confirmed");
+    if (!disposition.hasActive(command.caseId()))
+      throw new ImprovementValidationException("Disposition is already satisfied");
+    var jira = jiraProvider.getIfAvailable();
+    if (jira == null) throw new ImprovementValidationException("Jira integration is disabled");
+    var correlation = command.caseId().value() + ":" + command.attemptId();
+    var found = jira.findByCorrelationKey(correlation);
+    var issue =
+        found.orElseGet(
+            () ->
+                jira.create(
+                    new ApprovedJiraDraft(
+                        draft.title(),
+                        draft.problemStatement(),
+                        draft.proposedDirection(),
+                        draft.acceptanceIntent(),
+                        draft.repositoryId(),
+                        command.reviewDate()),
+                    correlation));
+    var now = clock.instant();
+    repository.record(
+        command.attemptId(), command.caseId(), correlation, issue, command.reviewDate(), now);
+    if (!disposition.complete(command.caseId(), now))
+      throw new ImprovementValidationException("Disposition is already satisfied");
+    audit.append(
+        new AuditEntry(
+            UUID.randomUUID(),
+            "OPERATIONAL_CASE",
+            command.caseId().value(),
+            "disposition.create-improvement",
+            AuditEntry.ActorType.MANAGER,
+            now,
+            json.createObjectNode().put("jiraKey", issue.key()),
+            List.of()));
+    return new CreateImprovementResult(issue, found.isPresent());
+  }
 }

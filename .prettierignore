@@ -1,0 +1,13 @@
+.worktrees/
+.git/
+build/
+target/
+backend/target/
+backend/src/main/resources/db/migration/
+frontend/dist/
+frontend/node_modules/
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+mvnw
+mvnw.cmd

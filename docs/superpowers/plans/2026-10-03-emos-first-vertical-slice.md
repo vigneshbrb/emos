@@ -82,6 +82,7 @@ The files named in each task refine this map. Do not create generic `util`, `ser
 ### Task 1: Runnable Modular-Monolith Foundation
 
 **Files:**
+
 - Create: `pom.xml`
 - Create: `backend/pom.xml`
 - Create: `backend/src/main/java/com/emos/EmosApplication.java`
@@ -114,6 +115,7 @@ The files named in each task refine this map. Do not create generic `util`, `ser
 - Create: `mvnw.cmd`
 
 **Interfaces:**
+
 - Consumes: none.
 - Produces: Spring Boot application at `com.emos.EmosApplication`; `GET /api/system/health` returning `{"status":"UP"}`; React root component `App`; PostgreSQL service named `postgres` on local port `5432`.
 
@@ -171,6 +173,7 @@ git commit -m "build: establish EMOS modular monolith"
 ### Task 2: Durable Job Runner and Integration Diagnostics
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V001__platform_jobs_and_audit.sql`
 - Create: `backend/src/main/java/com/emos/platform/jobs/Job.java`
 - Create: `backend/src/main/java/com/emos/platform/jobs/JobRepository.java`
@@ -188,6 +191,7 @@ git commit -m "build: establish EMOS modular monolith"
 - Test: `backend/src/test/java/com/emos/web/SystemDiagnosticsControllerTest.java`
 
 **Interfaces:**
+
 - Consumes: PostgreSQL, injected `java.time.Clock`.
 - Produces: `JobRepository.enqueue(String type, String deduplicationKey, JsonNode payload, Instant availableAt)`; `JobHandler.type()` and `JobHandler.handle(Job job)`; `JobRunner.runAvailable(int limit)`; `AuditTrail.append(AuditEntry entry)`; `AuditQueryService.findForSubject(String subjectType, UUID subjectId): List<AuditEntry>`; `IntegrationStatusRepository.recordSuccess(String provider, Instant at)` and `recordFailure(String provider, Instant at, String safeMessage)`; `GET /api/system/integrations`.
 
@@ -245,6 +249,7 @@ git commit -m "feat: add durable background jobs"
 ### Task 3: JSM Alert Ingestion and Operational Case
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V002__source_events_and_alerts.sql`
 - Create: `backend/src/main/java/com/emos/operationalobservation/domain/Alert.java`
 - Create: `backend/src/main/java/com/emos/operationalobservation/domain/AlertStatus.java`
@@ -263,6 +268,7 @@ git commit -m "feat: add durable background jobs"
 - Test: `backend/src/test/java/com/emos/operationalobservation/infrastructure/JsmHttpClientContractTest.java`
 
 **Interfaces:**
+
 - Consumes: `JobRepository`, `IntegrationStatusRepository`, `AuditTrail`, JSM base URL and token from environment.
 - Produces: `JsmClient.fetchAlerts(Instant updatedSince, String cursor): JsmAlertPage`; `JsmPollService.poll(): PollResult`; `AlertQueryService.findActive(): List<AlertSummary>`; publishes `AlertResolved(OperationalCaseId caseId, Instant resolvedAt)` only on the first transition to resolved.
 
@@ -310,6 +316,7 @@ git commit -m "feat: ingest JSM alert lifecycle"
 ### Task 4: Datadog Evidence and Fixed Recurrence Windows
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V003__datadog_evidence.sql`
 - Create: `backend/src/main/java/com/emos/operationalobservation/application/DatadogClient.java`
 - Create: `backend/src/main/java/com/emos/operationalobservation/application/MonitorEvidence.java`
@@ -322,6 +329,7 @@ git commit -m "feat: ingest JSM alert lifecycle"
 - Test: `backend/src/test/java/com/emos/operationalobservation/infrastructure/DatadogHttpClientContractTest.java`
 
 **Interfaces:**
+
 - Consumes: Alert monitor URL/identifier from Task 3 and durable jobs from Task 2.
 - Produces: `DatadogClient.loadEvidence(String monitorId, Instant asOf): MonitorEvidence`; `EvidenceEnrichmentService.enrich(OperationalCaseId caseId): EvidenceSnapshot`; recurrence fields `last24Hours`, `last7Days`, `last30Days`.
 
@@ -361,6 +369,7 @@ git commit -m "feat: enrich alerts with Datadog evidence"
 ### Task 5: Working Calendar, Disposition Obligation, and Attention Projection
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V004__obligations_and_attention.sql`
 - Create: `backend/src/main/java/com/emos/attentionfollowthrough/domain/WorkingCalendar.java`
 - Create: `backend/src/main/java/com/emos/attentionfollowthrough/domain/ExpectationId.java`
@@ -380,6 +389,7 @@ git commit -m "feat: enrich alerts with Datadog evidence"
 - Test: `backend/src/test/java/com/emos/attentionfollowthrough/application/DeadlineEvaluationServiceIntegrationTest.java`
 
 **Interfaces:**
+
 - Consumes: `AlertResolved` from Task 3, `Clock`, explicit holiday dates.
 - Produces: `WorkingCalendar.addWorkingHours(Instant start, Duration amount): Instant`; `DispositionObligationService.onAlertResolved(OperationalCaseId caseId, Instant resolvedAt): ObligationId`; `DispositionObligationService.onAlertReopened(OperationalCaseId caseId, Instant reopenedAt)`; `DeadlineEvaluationService.evaluateDue(Instant now): EvaluationResult`; `AttentionQueryService.findOpen(): List<AttentionSummary>` and `findPending(): List<PendingObligationSummary>`.
 
@@ -433,6 +443,7 @@ git commit -m "feat: surface breached disposition obligations"
 ### Task 6: Today Dashboard and Case Evidence API
 
 **Files:**
+
 - Create: `backend/src/main/java/com/emos/web/TodayController.java`
 - Create: `backend/src/main/java/com/emos/web/OperationalCaseController.java`
 - Create: `backend/src/main/java/com/emos/web/ApiError.java`
@@ -451,6 +462,7 @@ git commit -m "feat: surface breached disposition obligations"
 - Modify: `frontend/src/app/App.tsx`
 
 **Interfaces:**
+
 - Consumes: query services from Tasks 3-5 and `AuditQueryService` from Task 2.
 - Produces: `GET /api/today`; `GET /api/cases/{caseId}`; TypeScript types `TodayResponse`, `OperationalCaseDetail`, and shared `ApiError` generated or manually mirrored from stable DTO contracts.
 
@@ -498,6 +510,7 @@ git commit -m "feat: add manager attention dashboard"
 ### Task 7: Evidence-Bound AI Recommendation
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V005__recommendations.sql`
 - Create: `backend/src/main/java/com/emos/recommendations/application/RecommendationProvider.java`
 - Create: `backend/src/main/java/com/emos/recommendations/application/RecommendationRequest.java`
@@ -517,6 +530,7 @@ git commit -m "feat: add manager attention dashboard"
 - Test: `frontend/src/cases/RecommendationPanel.test.tsx`
 
 **Interfaces:**
+
 - Consumes: case Evidence from Tasks 3-4, durable jobs, `OPENAI_API_KEY` and configured model name.
 - Produces: `RecommendationProvider.generate(RecommendationRequest request): RecommendationResult`; `RecommendationService.requestFor(OperationalCaseId caseId)`; case-detail fields `recommendation.status`, `recommendedDisposition`, `summary`, `proposedImprovement`, `repositorySearchTerms`, `citations`, `uncertainty`, `generatedAt`, `model`, `promptVersion`, and `stale`.
 
@@ -562,6 +576,7 @@ git commit -m "feat: add evidence-bound AI recommendations"
 ### Task 8: GitHub Repository Candidates and Confirmed Mapping
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V006__repository_catalog_and_mappings.sql`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/application/GitHubCatalogPort.java`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/application/RepositoryDocument.java`
@@ -580,6 +595,7 @@ git commit -m "feat: add evidence-bound AI recommendations"
 - Test: `backend/src/test/java/com/emos/improvementknowledge/infrastructure/GitHubHttpCatalogAdapterContractTest.java`
 
 **Interfaces:**
+
 - Consumes: monitor ID, case Evidence, Recommendation search terms.
 - Produces: `GitHubCatalogPort.refresh(): CatalogRefreshResult`; `RepositoryCandidateService.candidatesFor(OperationalCaseId caseId): List<RepositoryCandidate>`; `RepositoryMappingService.confirmMonitorMapping(String monitorId, RepositoryRef repository, String rationale): MappingId`; `GET /api/cases/{caseId}/repository-candidates`; `POST /api/cases/{caseId}/repository-confirmation`.
 
@@ -625,6 +641,7 @@ git commit -m "feat: learn confirmed repository mappings"
 ### Task 9: Approved Jira Improvement Creation and Disposition
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V007__jira_drafts_and_dispositions.sql`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/domain/JiraDraft.java`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/domain/ImprovementFollowUp.java`
@@ -645,6 +662,7 @@ git commit -m "feat: learn confirmed repository mappings"
 - Test: `backend/src/test/java/com/emos/improvementknowledge/infrastructure/JiraHttpIssueAdapterContractTest.java`
 
 **Interfaces:**
+
 - Consumes: confirmed repository mapping, Recommendation proposal, pending/breached Disposition Obligation, and `AuditTrail`.
 - Produces: `JiraDraftService.prepare(OperationalCaseId caseId): JiraDraft`; `JiraIssuePort.create(ApprovedJiraDraft draft, String correlationKey): JiraIssueRef`; `JiraIssuePort.findByCorrelationKey(String correlationKey): Optional<JiraIssueRef>`; `CreateImprovementService.execute(CreateImprovementCommand command): CreateImprovementResult`; `PUT /api/cases/{caseId}/jira-draft`; `POST /api/cases/{caseId}/dispositions/create-improvement`.
 
@@ -696,6 +714,7 @@ git commit -m "feat: create approved Jira improvements"
 ### Task 10: Improvement Review, Jira Completion, and Daily Digest
 
 **Files:**
+
 - Create: `backend/src/main/java/com/emos/improvementknowledge/application/JiraFollowUpService.java`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/infrastructure/JiraPollingJobHandler.java`
 - Create: `backend/src/main/java/com/emos/improvementknowledge/infrastructure/ImprovementReviewJobHandler.java`
@@ -711,6 +730,7 @@ git commit -m "feat: create approved Jira improvements"
 - Test: `backend/src/test/java/com/emos/notifications/application/DailyDigestServiceTest.java`
 
 **Interfaces:**
+
 - Consumes: Improvement FollowUp and JiraIssuePort from Task 9, AttentionQueryService from Task 5.
 - Produces: `JiraFollowUpService.refresh(FollowUpId id): FollowUpRefreshResult`; `DailyDigestService.sendFor(LocalDate date): DigestResult`; `GET /api/follow-ups/{id}`; case-detail FollowUp summary.
 
@@ -756,6 +776,7 @@ git commit -m "feat: track improvement follow-up"
 ### Task 11: Trial Telemetry, End-to-End Replay, and Operator Documentation
 
 **Files:**
+
 - Create: `backend/src/main/resources/db/migration/V008__interaction_sessions.sql`
 - Create: `backend/src/main/java/com/emos/platform/telemetry/InteractionSessionService.java`
 - Create: `backend/src/main/java/com/emos/web/InteractionSessionController.java`
@@ -778,6 +799,7 @@ git commit -m "feat: track improvement follow-up"
 - Modify: `backend/src/main/resources/application.yml`
 
 **Interfaces:**
+
 - Consumes: completed vertical-slice APIs and audit records.
 - Produces: `POST /api/interaction-sessions/start`; `POST /api/interaction-sessions/{id}/heartbeat`; `POST /api/interaction-sessions/{id}/stop`; `GET /api/trial-metrics?from=&to=`; local runbook and four-week trial worksheet.
 
